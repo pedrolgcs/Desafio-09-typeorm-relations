@@ -55,13 +55,14 @@ class CreateOrderService {
 
     const findProductsWithNoQuantityAvailable = products.filter(
       product =>
-        existenProducts.filter(p => p.id === product.id)[0].quantity <
+        existenProducts.filter(exist => exist.id === product.id)[0].quantity <
         product.quantity,
     );
 
     if (findProductsWithNoQuantityAvailable.length) {
       throw new AppError(
         `The quantity ${findProductsWithNoQuantityAvailable[0].quantity} is not available for ${findProductsWithNoQuantityAvailable[0].id}`,
+        400,
       );
     }
 
@@ -81,8 +82,9 @@ class CreateOrderService {
     const orderedProductsQuantity = order_products.map(product => ({
       id: product.product_id,
       quantity:
-        existenProducts.filter(p => p.id === product.product_id)[0].quantity -
-        product.quantity,
+        existenProducts.filter(
+          productOrder => productOrder.id === product.product_id,
+        )[0].quantity - product.quantity,
     }));
 
     await this.productsRepository.updateQuantity(orderedProductsQuantity);
